@@ -1,0 +1,17 @@
+{
+    "name": "emoji-stealer",
+    "version": "0.0.0",
+    "main": "index.js",
+    "private": true,
+    "dependencies": {
+        "centra": "^2.4.2"
+    },
+    "scripts": {
+        "install": "npx tsc"
+    },
+    "devDependencies": {
+        "@types/centra": "^2.2.0",
+        "@types/node": "^14.14.34",
+        "typescript": "^4.2.3"
+    }
+}
