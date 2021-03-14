@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { writeFileSync, rmSync, mkdirSync, existsSync } from 'fs'
+/* eslint-disable @typescript-eslint/no-explicit-any, no-control-regex */
+import { writeFileSync, mkdirSync, existsSync } from 'fs'
 import readline from 'readline'
 import centra from 'centra'
 
@@ -31,6 +31,12 @@ const DATA = {
  * * FUNCTIONS
  */
 
+function decancerName(str: string) {
+    //From https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
+    return str.replace(/[/\\:!<>"|?*\u0000-\u001F\n]+|(?:(COM|LPT)[1-9])+|CON|PRN|AUX|NUL|[\s.]+$/g, '').trim()
+        || `No name${Array.from({ length: 5 }, () => Math.floor(Math.random() * 9)).join('') /* Random "ID" in case there are any duplicates */}`
+}
+
 function deleteLine() {
     process.stdout?.clearLine(0)
     process.stdout?.cursorTo(0)
@@ -53,7 +59,9 @@ async function getGuildEmojis(ID: string, name?: string) {
 }
 
 async function makeEmoji(name: string, ID: string, animated: boolean, folderName: string) {
-    folderName = folderName.replace(/[^\w -]/g, '')
+    folderName = decancerName(folderName)
+    name = decancerName(name)
+
     const dir = `${basePath}/${folderName}`,
         format = animated ? 'gif' : 'png',
         filename = `${name}.${format}`
@@ -73,9 +81,7 @@ async function makeEmoji(name: string, ID: string, animated: boolean, folderName
 //* Main function
 
 (async function () {
-    //Deletes and recreates the old directory (used for clean-up)
-    rmSync(basePath, { recursive: true, force: true })
-    mkdirSync(basePath)
+    if (!existsSync(basePath)) mkdirSync(basePath)
 
     //Get the required data
     if (!DATA.token) DATA.token = (await asyncQuestion(LANGUAGES['STEP_1'])).trim()
