@@ -1,3 +1,4 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/thunder04/discord-emoji-stealer/badge)](https://www.codefactor.io/repository/github/thunder04/discord-emoji-stealer)
 
 # discord-emoji-stealer
 
