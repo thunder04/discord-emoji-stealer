@@ -2,7 +2,7 @@
 name: Bug report
 about: Create a bug report in case you found a bug
 title: "[BUG]"
-labels: ''
+labels: 'bug'
 assignees: thunder04
 
 ---
