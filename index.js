@@ -17,7 +17,7 @@ process.env[ 'EMS_BASEPATH' ] = `${__dirname}/emojis`;
     let mode, guildID
 
     //Get the required data
-    process.env[ 'EMS_TOKEN' ] = ( await asyncQuestion( LANGUAGES[ 'STEP_1' ] ) ).trim()
+    process.env[ 'EMS_TOKEN' ] = ( await asyncQuestion( LANGUAGES[ 'STEP_1' ] ) ).trim().replace(/^('|")+|('|")+$/g, '')
     mode = parseInt( await asyncQuestion( LANGUAGES[ 'STEP_2' ] ) )
     if ( isNaN( mode ) || mode > 2 || mode < 1 ) mode = 1
 
