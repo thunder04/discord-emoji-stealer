@@ -1,3 +1,5 @@
+
+/*
 const readline = require("readline")
 const { existsSync, mkdirSync } = require("fs")
 const { getGuilds, makeEmoji, deleteLine, getGuildEmojis } = require("./lib")
@@ -58,3 +60,4 @@ process.env[ 'EMS_BASEPATH' ] = `${__dirname}/emojis`;
         }
     }
 })()
+*/

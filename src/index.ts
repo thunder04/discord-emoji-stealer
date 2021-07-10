@@ -5,7 +5,7 @@ import req from 'petitio'
 
 const $Interface = createInterface(process.stdin, process.stdout);
 const askQuestion = (question: string) => new Promise<string>(resolve => $Interface.question(question + '\n', resolve))
-    , checkCancel = (answer: string) => !answer || answer.toLowerCase() === 'cancel' ? process.exit(0) : void 0
+    , checkCancel = (answer: string) => answer.toLowerCase() === 'cancel' ? process.exit(0) : void 0
     , isInvalidRequest = (code: number | null) => !code ? true : `${code}`[0] !== '2' || code === 204;
 
 (async function () {
@@ -13,6 +13,12 @@ const askQuestion = (question: string) => new Promise<string>(resolve => $Interf
 
     const token = await askQuestion(i18n.STEP_1).then((answer) => answer.trim().replace(/^['"]+|['"]+$/g, ''))
     checkCancel(token)
+
+    const testRes = await req(`https://discord.com/api/v9/users/@me`, 'GET').header('authorization', token).send().then(res => !isInvalidRequest(res.statusCode)).catch(() => false)
+    if (!testRes) {
+        console.log(i18n.INVALID_TOKEN)
+        process.exit(0)
+    }
 
     const modeString = await askQuestion(i18n.STEP_2)
     checkCancel(modeString)
@@ -36,18 +42,18 @@ const askQuestion = (question: string) => new Promise<string>(resolve => $Interf
         guilds = parsed.map(id => ({ id }))
     }
 
+    $Interface.close()
     for (const { id, name } of guilds) {
         const guild = await fetchGuildEmojis(id, token)
         if (!guild) {
-            console.warn(`I couldn't fetch the server ${`${name} (${id})` || id}. You might have been ratelimitted, you might not have permission to access the server or the token is invalid.`)
+            console.warn(i18n.NO_ACCESS(name || id))
             continue
         } else if (!guild.emojis.length) continue
 
-        //Manage emojis
-
-        console.log((guild.name || guild.id) + `  ${guild.emojis.length}`)
-
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await Promise.all([
+            new Promise(resolve => setTimeout(resolve, 1000)),
+            Promise.all(guild.emojis.map(processEmoji)),
+        ])
     }
 
     process.exit(0)
@@ -78,6 +84,6 @@ async function fetchGuilds(token: string) {
     return res.json<PartialGuild[]>()
 }
 
-async function parseGuild({ emojis, name, id }: Partial<PartialGuild> & { emojis: PartialEmoji[] }) {
-
+async function processEmoji({ name, id, animated }: PartialEmoji) {
+    console.log(name, id, animated)
 }
