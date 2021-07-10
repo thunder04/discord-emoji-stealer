@@ -1,10 +1,13 @@
 {
     "compilerOptions": {
-        "target": "ES2017",
-        "module": "commonjs",
-        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "Node",
+        "isolatedModules": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
+        "target": "esnext",
+        "module": "esnext",
+        "outDir": "dist",
+        "strict": true,
     }
 }
