@@ -29,7 +29,7 @@ if (!testRes) {
 const modeString = await askQuestion(i18n.STEP_2)
 checkCancel(modeString)
 
-var mode = parseInt(modeString)
+var mode = parseInt(modeString, 10)
 if (isNaN(mode) || mode < 1 || mode > 3) mode = 1
 if (mode === 3) process.exit(0)
 
