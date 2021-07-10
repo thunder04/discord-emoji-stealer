@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "postinstall": "npm run build",
-        "build": "npx esbuild src/index.ts --outfile=index.js --platform=node --bundle --external:petitio --format=esm"
+        "build": "npx esbuild src/index.ts --outfile=index.js --platform=node --bundle --minify --external:petitio --format=esm"
     },
     "dependencies": {
         "esbuild": "^0.12.15",

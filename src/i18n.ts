@@ -14,7 +14,7 @@ export const STEP_2 = [
 ].join('\n\t')
 
 export const STEP_3 = [
-    `Provide the servers IDs you wish to downloads its emojis from separated by a comma (,). A server can be either one:`,
+    `Provide a comma-separated list of server IDs you wish to downloads its emojis from. A server can be either one:`,
     `You or the bot has access to`,
     `A public server`
 ].join('\n\t • ')

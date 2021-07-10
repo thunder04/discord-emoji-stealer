@@ -1,19 +1,19 @@
+import { clearLine, createInterface, moveCursor } from 'readline'
 import { mkdir, writeFile } from 'fs/promises';
-import { createInterface } from 'readline'
 import { existsSync } from 'fs';
 import * as i18n from './i18n';
 import req from 'petitio'
 
-const DIRECTORY = process.cwd() + '/emojis'
+const DIRECTORY = '/emojis'
 
 //From https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
 const forbiddenPattern = /[/\\:!<>"|?*\u0000-\u001F\n]+|(?:(COM|LPT)[1-9])+|CON|PRN|AUX|NUL|[\s.]+$/g
-const $Interface = createInterface(process.stdin, process.stdout);
-const askQuestion = (question: string) => new Promise<string>(resolve => $Interface.question(question + '\n', resolve))
-    , checkCancel = (answer: string) => answer.toLowerCase() === 'cancel' ? process.exit(0) : void 0
-    , isInvalidRequest = (code: number | null) => !code ? true : `${code}`[0] !== '2' || code === 204;
+    , $Interface = createInterface(process.stdin, process.stdout)
+    , askQuestion = (question: string) => new Promise<string>(resolve => $Interface.question(question + '\n', resolve))
+    , checkCancel = (answer: string) => answer.trim().toLowerCase() === 'cancel' ? process.exit(0) : void 0
+    , isInvalidRequest = (code: number | null) => !code ? true : `${code}`[0] !== '2' || code === 204
 
-console.log(`Type "cancel" to exit anytime.`)
+console.log(`Type "cancel" to exit at anytime.`)
 
 const token = await askQuestion(i18n.STEP_1).then((answer) => answer.trim().replace(/^['"]+|['"]+$/g, ''))
 checkCancel(token)
@@ -49,6 +49,7 @@ if (mode === 1) {
 }
 
 $Interface.close()
+
 for (const { id, name } of guilds) {
     const guild = await fetchGuildEmojis(id, token)
     if (!guild) {
@@ -56,7 +57,7 @@ for (const { id, name } of guilds) {
         continue
     } else if (!guild.emojis.length) continue
 
-    console.log(`Found ${guild.emojis.length} emoji${guild.emojis.length !== 1 ? 's' : ''} from ${guild.name ? `${guild.name} (${guild.id})` : guild.id}`)
+    console.log(`Found ${guild.emojis.length} emoji${guild.emojis.length !== 1 ? 's' : ''} from ${guild.name ? `${guild.name} (${guild.id})` : guild.id}\n`)
 
     await Promise.all([
         new Promise(resolve => setTimeout(resolve, 1000)),
@@ -89,18 +90,21 @@ async function fetchGuilds(token: string) {
     return res.json<PartialGuild[]>()
 }
 
-async function processEmoji({ name, id, animated }: PartialEmoji, foldername: string) {
+async function processEmoji({ name, id, animated }: PartialEmoji, folderName: string) {
     const format = animated ? 'gif' : 'png'
 
+    folderName = `${DIRECTORY}/${folderName.replace(forbiddenPattern, '').trim()}`
     name = `${(name || id).replace(forbiddenPattern, '').trim()}`
-    const dir = `${DIRECTORY}/${foldername.replace(forbiddenPattern, '').trim()}`
+    const folder = `${process.cwd()}${folderName}`
 
     const response = await req(`https://cdn.discordapp.com/emojis/${id}.${format}`).send()
     if (isInvalidRequest(response.statusCode)) return
 
-    var filepath = `${dir}/${name}.${format}`, counter = 0
-    while (existsSync(filepath)) filepath = `${dir}/${++counter}-${name}.${format}`
+    var filepath = `${folder}/${name}.${format}`, counter = 0
+    while (existsSync(filepath)) filepath = `${folder}/${++counter}-${name}.${format}`
 
-    console.log(filepath)
-    await mkdir(dir, { recursive: true }).then(() => writeFile(filepath, response.body))
+    moveCursor(process.stdout, 0, -1)
+    clearLine(process.stdout, 1)
+    console.log(`\t✅ Downloaded "${name}" in "${folderName}"`)
+    await mkdir(folder, { recursive: true }).then(() => writeFile(filepath, response.body))
 }
